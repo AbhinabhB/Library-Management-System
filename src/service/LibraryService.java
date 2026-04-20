@@ -40,15 +40,21 @@ public class LibraryService {
                 case 3:
                     sc.nextLine();
                     System.out.print("User Name: ");
-                    userDAO.addUser(sc.nextLine());
+                    String userName = sc.nextLine();
+
+                    int userId = userDAO.addUser(userName);
+                    System.out.println("User added! User ID: " + userId);
                     break;
 
                 case 4:
                     System.out.print("Book ID: ");
                     int bId = sc.nextInt();
+
                     System.out.print("User ID: ");
                     int uId = sc.nextInt();
-                    transactionDAO.issueBook(bId, uId);
+
+                    int transactionId = transactionDAO.issueBook(bId, uId);
+                    System.out.println("Book issued! Transaction ID: " + transactionId);
                     break;
 
                 case 5:

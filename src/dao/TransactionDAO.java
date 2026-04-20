@@ -6,11 +6,12 @@ import java.time.temporal.ChronoUnit;
 
 public class TransactionDAO {
 
-    public void issueBook(int bookId, int userId) {
+    public int issueBook(int bookId, int userId) {
         String sql = "insert into transactions(book_id, user_id, issue_date, fine) values (?, ?, ?, 0)";
+        int transactionId = -1;
 
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, bookId);
             ps.setInt(2, userId);
@@ -18,13 +19,19 @@ public class TransactionDAO {
 
             ps.executeUpdate();
 
-            new BookDAO().updateAvailability(bookId, false);
+            // Get generated transaction ID
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                transactionId = rs.getInt(1);
+            }
 
-            System.out.println("Book issued!");
+            new BookDAO().updateAvailability(bookId, false);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return transactionId;
     }
 
     public void returnBook(int transactionId) {
